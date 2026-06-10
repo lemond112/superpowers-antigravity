@@ -355,15 +355,21 @@ Rewrite as `CONTRIBUTING.md` with Antigravity-specific contributor guidelines. R
 
 #### [MODIFY] `tests/antigravity/`
 
-Update test scripts to assert:
-- `define_subagent` is used for implementer/spec-reviewer/code-reviewer types.
-- `invoke_subagent` references custom types, not `"self"`.
-- `ask_question` is invoked for interactive menus.
-- No Claude Code tool names (`TodoWrite`, `Task tool`, `Skill tool`) appear in any skill file.
-- No references to deleted platforms in any remaining file.
+Update test suite:
+- **[REWRITE/RENAME]** Rename `test-tool-mapping-accuracy.sh` to `test-skill-tool-purity.sh`. Instead of checking a mapping file, this script will statically analyze all skill files to assert:
+  - No Claude Code/legacy tool names are referenced (`TodoWrite`, `Task tool`, `Skill tool`, `EnterWorktree`, `Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`, `WebSearch`, `WebFetch`).
+  - No legacy platform references or tool mapping files are referenced.
+  - All referenced tools match the valid Antigravity 2.0 tool list.
+- **[MODIFY]** Update `test-skill-triggering/run-all.sh` to remove `"executing-plans"` from the test array, and remove the `SHARED_PROMPTS_DIR` fallback (it will check `LOCAL_PROMPTS_DIR` exclusively).
+- **[MODIFY]** Copy/migrate prompt files for `dispatching-parallel-agents.txt`, `requesting-code-review.txt`, `systematic-debugging.txt`, `test-driven-development.txt`, and `writing-plans.txt` from `tests/skill-triggering/prompts/` to `tests/antigravity/test-skill-triggering/prompts/` before deleting the source folder.
+- **[MODIFY]** Update `test-subagent-dispatch.sh` and `test-worktree-workspace.sh` to assert and verify:
+  - `define_subagent` is used for `implementer`/`spec-reviewer`/`code-reviewer` types.
+  - `invoke_subagent` references custom defined types, not `"self"`.
+  - `ask_question` is invoked for interactive menus.
+  - Workspace isolation uses the `Workspace: "branch"` parameter.
 
 #### [DELETE] `tests/explicit-skill-requests/`
-#### [DELETE] `tests/skill-triggering/`
+#### [DELETE] `tests/skill-triggering/` (after copying prompt files)
 #### [DELETE] `tests/subagent-driven-dev/`
 #### [DELETE] `tests/brainstorm-server/`
 
@@ -403,9 +409,10 @@ Bump version to `6.0.0` to mark the Antigravity-native fork.
 ```bash
 # Run updated Antigravity test suite
 cd tests/antigravity && bash test-plugin-discovery.sh
-cd tests/antigravity && bash test-tool-mapping-accuracy.sh
+cd tests/antigravity && bash test-skill-tool-purity.sh
 cd tests/antigravity && bash test-subagent-dispatch.sh
 cd tests/antigravity && bash test-worktree-workspace.sh
+cd tests/antigravity/test-skill-triggering && bash run-all.sh
 ```
 
 ### Content Verification
