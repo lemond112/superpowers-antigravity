@@ -99,12 +99,13 @@ cp tests/skill-triggering/prompts/writing-plans.txt tests/antigravity/test-skill
 rm -rf tests/skill-triggering
 ```
 
-- [ ] **Step 8: Delete legacy docs**
+- [ ] **Step 8: Delete legacy docs and obsolete GitHub templates**
 
 ```bash
 rm -f docs/README.opencode.md
 rm -rf docs/windows
 rm -f AGENTS.md
+rm -f .github/ISSUE_TEMPLATE/platform_support.md
 ```
 
 - [ ] **Step 9: Verify no broken symlinks or orphaned references**
@@ -135,7 +136,15 @@ The bootstrap skill. Remove the 5-platform "How to Access Skills" block and "Pla
 **Files:**
 - Modify: `skills/using-superpowers/SKILL.md`
 
-- [ ] **Step 1: Rewrite the "How to Access Skills" section**
+- [ ] **Step 1: Update frontmatter description**
+
+Line 3 contains `requiring Skill tool invocation before ANY response`. Replace the entire description:
+
+```yaml
+description: Use when starting any conversation - establishes how to find and use skills, requiring reading the SKILL.md file before ANY response including clarifying questions
+```
+
+- [ ] **Step 2: Rewrite the "How to Access Skills" section**
 
 Replace lines 28-38 (the 5-platform if/else block):
 
@@ -159,7 +168,7 @@ With:
 Skills auto-load from plugins. Place this repo in `~/.gemini/config/plugins/superpowers/` or `.agents/plugins/superpowers/`. Skills are discovered automatically; use `view_file` to read any `SKILL.md` on demand.
 ```
 
-- [ ] **Step 2: Remove the "Platform Adaptation" section**
+- [ ] **Step 3: Remove the "Platform Adaptation" section**
 
 Delete line 42:
 
@@ -167,17 +176,17 @@ Delete line 42:
 Skills use Claude Code tool names. Non-CC platforms: see `references/copilot-tools.md` (Copilot CLI), `references/codex-tools.md` (Codex), or `references/antigravity-tools.md` (Antigravity 2.0) for tool equivalents. Gemini CLI users get the tool mapping loaded automatically via GEMINI.md.
 ```
 
-- [ ] **Step 3: Update the flowchart**
+- [ ] **Step 4: Update the flowchart**
 
 In the dot graph (lines 50-77), replace:
 - `"Create TodoWrite todo per item"` → `"Create task.md artifact for checklist"`
 - `"Invoke Skill tool"` → `"Read SKILL.md with view_file"`
 
-- [ ] **Step 4: Update "Red Flags" table**
+- [ ] **Step 5: Update "Red Flags" table**
 
 Replace any `Skill` tool references with `view_file` references. Replace `TodoWrite` with `task.md artifact`.
 
-- [ ] **Step 5: Remove Claude Code/Codex/Copilot references from "Instruction Priority" section**
+- [ ] **Step 6: Remove Claude Code/Codex/Copilot references from "Instruction Priority" section**
 
 Line 26 mentions `CLAUDE.md`. Since we're keeping `GEMINI.md` and `AGENTS.md` is deleted, update:
 
@@ -191,14 +200,14 @@ Wait — `AGENTS.md` is also deleted. Simplify to:
 1. **User's explicit instructions** (GEMINI.md, direct requests) — highest priority
 ```
 
-- [ ] **Step 6: Verify no legacy references remain**
+- [ ] **Step 7: Verify no legacy references remain**
 
 ```bash
 grep -n "Claude Code\|Codex\|Copilot\|Cursor\|OpenCode\|Gemini CLI\|Factory Droid\|TodoWrite\|Skill tool\|copilot-tools\|codex-tools\|gemini-tools\|antigravity-tools\|CLAUDE.md\|AGENTS.md" skills/using-superpowers/SKILL.md
 # Should return nothing
 ```
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add skills/using-superpowers/SKILL.md
@@ -209,13 +218,15 @@ git commit -m "refactor: rewrite using-superpowers for Antigravity 2.0 native"
 
 ### Task 3: Transform Prompt Templates into `define_subagent` Definitions
 
-Rewrite all 4 prompt template files to document the static/dynamic split for `define_subagent`. Each file becomes a reference document with two clearly marked sections: the static `system_prompt` and the dynamic `Prompt` template.
+Rewrite all 6 prompt template files to document the static/dynamic split for `define_subagent`. Each file becomes a reference document with two clearly marked sections: the static `system_prompt` and the dynamic `Prompt` template.
 
 **Files:**
 - Rewrite: `skills/subagent-driven-development/implementer-prompt.md`
 - Rewrite: `skills/subagent-driven-development/spec-reviewer-prompt.md`
 - Rewrite: `skills/subagent-driven-development/code-quality-reviewer-prompt.md`
 - Rewrite: `skills/requesting-code-review/code-reviewer.md`
+- Rewrite: `skills/brainstorming/spec-document-reviewer-prompt.md`
+- Rewrite: `skills/writing-plans/plan-document-reviewer-prompt.md`
 
 - [ ] **Step 1: Rewrite `implementer-prompt.md`**
 
@@ -660,20 +671,154 @@ invoke_subagent(
 ```
 ```
 
-- [ ] **Step 5: Verify all `Task tool (general-purpose)` references are gone**
+- [ ] **Step 5: Rewrite `brainstorming/spec-document-reviewer-prompt.md`**
+
+This file currently uses `Task tool (general-purpose):` syntax (line 10). Transform it into the same `define_subagent` static/dynamic format as the other templates. The static system prompt contains: spec reviewer role, what to check (completeness, consistency, clarity, scope, YAGNI), calibration guidance, output format. The dynamic prompt contains: spec file path.
+
+```markdown
+# Spec Document Reviewer Subagent Definition
+
+Define this subagent type at the start of brainstorming using `define_subagent`.
+
+## Type Registration
+
+```
+define_subagent(
+  name: "spec-reviewer-doc",
+  description: "Reviews spec documents for completeness, consistency, and readiness for implementation planning.",
+  system_prompt: <STATIC SYSTEM PROMPT below>,
+  enable_write_tools: false
+)
+```
+
+## Static System Prompt
+
+```
+You are a spec document reviewer. Verify this spec is complete and ready for planning.
+
+## What to Check
+
+| Category | What to Look For |
+|----------|------------------|
+| Completeness | TODOs, placeholders, "TBD", incomplete sections |
+| Consistency | Internal contradictions, conflicting requirements |
+| Clarity | Requirements ambiguous enough to cause someone to build the wrong thing |
+| Scope | Focused enough for a single plan — not covering multiple independent subsystems |
+| YAGNI | Unrequested features, over-engineering |
+
+## Calibration
+
+**Only flag issues that would cause real problems during implementation planning.**
+A missing section, a contradiction, or a requirement so ambiguous it could be
+interpreted two different ways — those are issues. Minor wording improvements,
+stylistic preferences, and "sections less detailed than others" are not.
+
+Approve unless there are serious gaps that would lead to a flawed plan.
+
+## Output Format
+
+## Spec Review
+
+**Status:** Approved | Issues Found
+
+**Issues (if any):**
+- [Section X]: [specific issue] - [why it matters for planning]
+
+**Recommendations (advisory, do not block approval):**
+- [suggestions for improvement]
+```
+
+## Dynamic Prompt Template
+
+```
+Review this spec document for completeness and readiness.
+
+**Spec to review:** {SPEC_FILE_PATH}
+```
+```
+
+- [ ] **Step 6: Rewrite `writing-plans/plan-document-reviewer-prompt.md`**
+
+Same transformation. Replace `Task tool (general-purpose):` syntax with `define_subagent` static/dynamic format. Static system prompt contains: plan reviewer role, what to check (completeness, spec alignment, task decomposition, buildability), calibration, output format. Dynamic prompt contains: plan file path and spec file path.
+
+```markdown
+# Plan Document Reviewer Subagent Definition
+
+Define this subagent type at the start of plan writing using `define_subagent`.
+
+## Type Registration
+
+```
+define_subagent(
+  name: "plan-reviewer-doc",
+  description: "Reviews implementation plans for completeness, spec alignment, and proper task decomposition.",
+  system_prompt: <STATIC SYSTEM PROMPT below>,
+  enable_write_tools: false
+)
+```
+
+## Static System Prompt
+
+```
+You are a plan document reviewer. Verify this plan is complete and ready for implementation.
+
+## What to Check
+
+| Category | What to Look For |
+|----------|------------------|
+| Completeness | TODOs, placeholders, incomplete tasks, missing steps |
+| Spec Alignment | Plan covers spec requirements, no major scope creep |
+| Task Decomposition | Tasks have clear boundaries, steps are actionable |
+| Buildability | Could an engineer follow this plan without getting stuck? |
+
+## Calibration
+
+**Only flag issues that would cause real problems during implementation.**
+An implementer building the wrong thing or getting stuck is an issue.
+Minor wording, stylistic preferences, and "nice to have" suggestions are not.
+
+Approve unless there are serious gaps — missing requirements from the spec,
+contradictory steps, placeholder content, or tasks so vague they can't be acted on.
+
+## Output Format
+
+## Plan Review
+
+**Status:** Approved | Issues Found
+
+**Issues (if any):**
+- [Task X, Step Y]: [specific issue] - [why it matters for implementation]
+
+**Recommendations (advisory, do not block approval):**
+- [suggestions for improvement]
+```
+
+## Dynamic Prompt Template
+
+```
+Review this implementation plan for completeness and readiness.
+
+**Plan to review:** {PLAN_FILE_PATH}
+**Spec for reference:** {SPEC_FILE_PATH}
+```
+```
+
+- [ ] **Step 7: Verify all `Task tool (general-purpose)` references are gone**
 
 ```bash
-grep -rn "Task tool" skills/subagent-driven-development/ skills/requesting-code-review/
+grep -rn "Task tool" skills/subagent-driven-development/ skills/requesting-code-review/ skills/brainstorming/ skills/writing-plans/
 # Should return nothing
 ```
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add skills/subagent-driven-development/implementer-prompt.md
 git add skills/subagent-driven-development/spec-reviewer-prompt.md
 git add skills/subagent-driven-development/code-quality-reviewer-prompt.md
 git add skills/requesting-code-review/code-reviewer.md
+git add skills/brainstorming/spec-document-reviewer-prompt.md
+git add skills/writing-plans/plan-document-reviewer-prompt.md
 git commit -m "refactor: transform prompt templates to define_subagent definitions with static/dynamic split"
 ```
 
@@ -953,9 +1098,9 @@ git worktree prune
 ```
 ```
 
-- [ ] **Step 6: Rewrite `writing-skills/SKILL.md`**
+- [ ] **Step 6: Rewrite `writing-skills/SKILL.md` and supporting files**
 
-Five targeted changes:
+Seven targeted changes:
 
 **a)** Line 12: Replace multi-platform personal skill directory listing:
 ```markdown
@@ -998,6 +1143,13 @@ With:
 ```markdown
 **IMPORTANT: Create a task.md artifact (using `write_to_file` with `IsArtifact: true`, `ArtifactType: "task"`) to track EACH checklist item below.**
 ```
+
+**f)** `persuasion-principles.md` (in `writing-skills/`): Replace 3 `TodoWrite` references that will fail the purity test:
+- Line 36: `- Use tracking: TodoWrite for checklists` → `- Use tracking: task.md artifact for checklists`
+- Line 83: `✅ Checklists without TodoWrite tracking = steps get skipped.` → `✅ Checklists without task.md tracking = steps get skipped.`
+- Line 84: `❌ Some people find TodoWrite helpful for checklists.` → `❌ Some people find task tracking helpful for checklists.`
+
+**g)** `anthropic-best-practices.md` (in `writing-skills/`): Delete the trailing `<CardGroup>` navigation section (lines 1136-1151) which contains `"Use Skills in Claude Code"`. These are Anthropic website navigation links that are meaningless outside their docs site and will fail the `Claude Code` purity check.
 
 - [ ] **Step 7: Rewrite `systematic-debugging/SKILL.md`**
 
@@ -1171,13 +1323,16 @@ git commit -m "refactor: simplify using-git-worktrees from 216 to ~55 lines (nat
 
 ### Task 7: Update Documentation and Manifests
 
-Update README, GEMINI.md, CLAUDE.md→CONTRIBUTING.md, and plugin.json.
+Update README, GEMINI.md, CLAUDE.md→CONTRIBUTING.md, plugin.json, package.json, gemini-extension.json, and PR template.
 
 **Files:**
 - Modify: `README.md`
 - Modify: `GEMINI.md`
 - Rename/Rewrite: `CLAUDE.md` → `CONTRIBUTING.md`
 - Modify: `plugin.json`
+- Modify: `package.json`
+- Modify: `gemini-extension.json`
+- Modify: `.github/PULL_REQUEST_TEMPLATE.md`
 
 - [ ] **Step 1: Rewrite `GEMINI.md`**
 
@@ -1239,10 +1394,65 @@ With:
 }
 ```
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Bump version in `gemini-extension.json`**
+
+Replace:
+```json
+{
+  "name": "superpowers",
+  "description": "Core skills library: TDD, debugging, collaboration patterns, and proven techniques",
+  "version": "5.1.0",
+  "contextFileName": "GEMINI.md"
+}
+```
+
+With:
+```json
+{
+  "name": "superpowers",
+  "description": "Core skills library for Antigravity 2.0: TDD, debugging, collaboration patterns, and proven techniques",
+  "version": "6.0.0",
+  "contextFileName": "GEMINI.md"
+}
+```
+
+- [ ] **Step 6: Update `package.json`**
+
+Replace:
+```json
+{
+  "name": "superpowers",
+  "version": "5.1.0",
+  "type": "module",
+  "main": ".opencode/plugins/superpowers.js"
+}
+```
+
+With (remove dangling `main` reference to deleted `.opencode/` directory):
+```json
+{
+  "name": "superpowers",
+  "version": "6.0.0",
+  "type": "module"
+}
+```
+
+- [ ] **Step 7: Simplify `.github/PULL_REQUEST_TEMPLATE.md`**
+
+Remove the multi-platform "Environment tested" harness table (line 49) and the "New harness support" section (lines 53-91) which references Claude Code transcripts and cross-platform acceptance testing. Replace with a simplified Antigravity-only section:
+
+```markdown
+## Environment tested
+
+| Antigravity version | Model | Model version/ID |
+|---------------------|-------|------------------|
+|                     |       |                  |
+```
+
+- [ ] **Step 8: Commit**
 
 ```bash
-git add README.md GEMINI.md CONTRIBUTING.md plugin.json
+git add README.md GEMINI.md CONTRIBUTING.md plugin.json gemini-extension.json package.json .github/PULL_REQUEST_TEMPLATE.md
 git commit -m "docs: update documentation and bump version to 6.0.0"
 ```
 
