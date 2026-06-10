@@ -1,25 +1,15 @@
-# Code Quality Reviewer Prompt Template
+# Code Quality Reviewer
 
-Use this template when dispatching a code quality reviewer subagent.
+For subagent-driven-development, code quality review uses the `code-reviewer` subagent type.
 
-**Purpose:** Verify implementation is well-built (clean, tested, maintainable)
+The code-reviewer's static system prompt includes an "Additional Checks (Subagent-Driven Development)" section with the extra criteria for file responsibility, decomposition, and file size growth.
 
-**Only dispatch after spec compliance review passes.**
+**Dispatch after spec compliance review passes:**
 
 ```
-Task tool (general-purpose):
-  Use template at requesting-code-review/code-reviewer.md
-
-  DESCRIPTION: [task summary, from implementer's report]
-  PLAN_OR_REQUIREMENTS: Task N from [plan-file]
-  BASE_SHA: [commit before task]
-  HEAD_SHA: [current commit]
+invoke_subagent(
+  TypeName: "code-reviewer",
+  Role: "Code quality reviewer for Task N",
+  Prompt: <fill from code-reviewer.md dynamic template>
+)
 ```
-
-**In addition to standard code quality concerns, the reviewer should check:**
-- Does each file have one clear responsibility with a well-defined interface?
-- Are units decomposed so they can be understood and tested independently?
-- Is the implementation following the file structure from the plan?
-- Did this implementation create new files that are already large, or significantly grow existing files? (Don't flag pre-existing file sizes — focus on what this change contributed.)
-
-**Code reviewer returns:** Strengths, Issues (Critical/Important/Minor), Assessment

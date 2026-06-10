@@ -1133,18 +1133,4 @@ Before sharing a Skill, verify:
 * [ ] Tested with real usage scenarios
 * [ ] Team feedback incorporated (if applicable)
 
-## Next steps
 
-<CardGroup cols={2}>
-  <Card title="Get started with Agent Skills" icon="rocket" href="/en/docs/agents-and-tools/agent-skills/quickstart">
-    Create your first Skill
-  </Card>
-
-  <Card title="Use Skills in Claude Code" icon="terminal" href="/en/docs/claude-code/skills">
-    Create and manage Skills in Claude Code
-  </Card>
-
-  <Card title="Use Skills with the API" icon="code" href="/en/api/skills-guide">
-    Upload and use Skills programmatically
-  </Card>
-</CardGroup>
