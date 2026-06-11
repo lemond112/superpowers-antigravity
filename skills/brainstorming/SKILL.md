@@ -22,7 +22,7 @@ Every project goes through this process. A todo list, a single-function utility,
 You MUST create a `task.md` artifact (using `write_to_file` with `IsArtifact: true`, `ArtifactType: "task"`) to track each of these items:
 
 
-1. **Explore project context** — check files, docs, recent commits
+1. **Explore project context** — use `list_dir` and `grep_search` to check files, docs, recent commits. For large codebases, dispatch a `TypeName: "research"` subagent to explore in parallel while you ask questions.
 2. **Assess visual needs** — note whether upcoming questions have visual aspects. If so, use `generate_image` for mockups and diagrams as you go. No consent needed — this is a native tool, not a browser session.
 3. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 4. **Propose 2-3 approaches** — with trade-offs and your recommendation
@@ -81,6 +81,7 @@ digraph brainstorming {
 - Propose 2-3 different approaches with trade-offs
 - Present options conversationally with your recommendation and reasoning
 - Lead with your recommended option and explain why
+- When exploring approaches, use `search_web` to check for existing solutions, libraries, or established patterns before designing from scratch
 
 **Presenting the design:**
 
@@ -125,9 +126,9 @@ Fix any issues inline. No need to re-review — just fix and move on.
 **User Review Gate:**
 After the spec review loop passes, ask the user to review the written spec before proceeding:
 
-> "Spec written and committed to `<path>`. Please review it and let me know if you want to make any changes before we start writing out the implementation plan."
+Write the design doc artifact with `RequestFeedback: true` in the `ArtifactMetadata`. This prompts the user for structured feedback automatically — no need for a separate "please review" message.
 
-Wait for the user's response. If they request changes, make them and re-run the spec review loop. Only proceed once the user approves.
+If the user requests changes, make them and re-run the spec review loop. Only proceed once the user approves.
 
 **Implementation:**
 
@@ -142,6 +143,12 @@ Wait for the user's response. If they request changes, make them and re-run the 
 - **Explore alternatives** - Always propose 2-3 approaches before settling
 - **Incremental validation** - Present design, get approval before moving on
 - **Be flexible** - Go back and clarify when something doesn't make sense
+
+## Slash Command Recommendations
+
+Suggest these to the user when appropriate:
+- **`/grill-me`** — when the user wants rapid alignment through an interactive interview instead of the Socratic process
+- **`/goal`** — when the user wants a long autonomous session ("build X end-to-end, don't stop until done")
 
 ## Visual Companion
 

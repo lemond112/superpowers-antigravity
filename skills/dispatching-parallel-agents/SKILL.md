@@ -74,9 +74,17 @@ invoke_subagent(Subagents: [
 // All three run concurrently via the Subagents array
 ```
 
+**Workspace isolation:** Choose the right mode for each agent:
+
+| Agent role | Workspace mode | When |
+|-----------|---------------|------|
+| Editing different files | `Workspace: "share"` | Agents work in same repo without conflicts |
+| Editing same files | `Workspace: "branch"` | Each agent gets isolated copy |
+| Read-only investigation | `Workspace: "inherit"` | No write access needed |
+
 ### 4. Review and Integrate
 
-When agents return:
+Use `manage_subagents` with `Action: "list"` to check which agents are still running. When all agents return:
 - Read each summary
 - Verify fixes don't conflict
 - Run full test suite

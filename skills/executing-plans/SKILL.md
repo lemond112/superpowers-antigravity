@@ -32,7 +32,7 @@ For each task:
 ### Step 3: Complete Development
 
 After all tasks complete and verified:
-1. **Generate walkthrough artifact:** Create a `walkthrough.md` artifact summarizing:
+1. **Generate walkthrough artifact:** Create a `walkthrough.md` artifact (using `write_to_file` with `IsArtifact: true`, `ArtifactType: "walkthrough"`, `RequestFeedback: true`) summarizing:
    - What was implemented (list of changes per component)
    - What was tested and results
    - Embed any relevant screenshots or recordings

@@ -57,6 +57,11 @@ You MUST complete each phase before proceeding to the next.
    - Read stack traces completely
    - Note line numbers, file paths, error codes
 
+1b. **Search for Unfamiliar Errors**
+   - If the error message, code, or stack trace is unfamiliar, use `search_web` with the exact error text
+   - Use `read_url_content` to fetch relevant documentation or solutions
+   - Don't guess at solutions you haven't seen before — search first
+
 2. **Reproduce Consistently**
    - Can you trigger it reliably?
    - What are the exact steps?
@@ -124,11 +129,12 @@ You MUST complete each phase before proceeding to the next.
 **Find the pattern before fixing:**
 
 1. **Find Working Examples**
-   - Locate similar working code in same codebase
+   - Use `grep_search` to locate similar working code in same codebase
    - What works that's similar to what's broken?
 
 2. **Compare Against References**
    - If implementing pattern, read reference implementation COMPLETELY
+   - If reference is online documentation, use `read_url_content` to fetch it
    - Don't skim - read every line
    - Understand the pattern fully before applying
 
@@ -150,6 +156,7 @@ You MUST complete each phase before proceeding to the next.
    - State clearly: "I think X is the root cause because Y"
    - Write it down
    - Be specific, not vague
+   - For complex multi-component interactions, use a Mermaid diagram in an artifact to visualize the data flow and pinpoint where the hypothesis applies
 
 2. **Test Minimally**
    - Make the SMALLEST possible change to test hypothesis

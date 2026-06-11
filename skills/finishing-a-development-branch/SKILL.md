@@ -148,17 +148,12 @@ Report: "Keeping branch <name>. Worktree preserved at <path>."
 
 #### Option 4: Discard
 
-**Confirm first:**
+**Confirm first** using `ask_permission`:
 ```
-This will permanently delete:
-- Branch <name>
-- All commits: <commit-list>
-- Worktree at <path>
-
-Type 'discard' to confirm.
+ask_permission(Action: "custom", Target: "discard-branch", Reason: "Permanently delete branch <name>, all commits, and worktree at <path>")
 ```
 
-Wait for exact confirmation.
+Wait for permission grant before proceeding.
 
 If confirmed:
 ```bash

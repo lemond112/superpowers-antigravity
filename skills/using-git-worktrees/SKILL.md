@@ -79,6 +79,21 @@ npm test / cargo test / pytest / go test ./...
 | Parent orchestrator | `git checkout -b <branch>` |
 | Tests fail during baseline | Report failures + ask |
 
+## Workspace Mode Decision Table
+
+Antigravity 2.0 supports three workspace modes for subagents. Choose based on the agent's role:
+
+| Mode | Syntax | Use for | Example |
+|------|--------|---------|----------|
+| `branch` | `Workspace: "branch"` | Agents that need isolated write access | Implementers, fixers |
+| `inherit` | `Workspace: "inherit"` | Read-only agents (default) | Reviewers, analyzers |
+| `share` | `Workspace: "share"` | Agents editing different files in same repo | Parallel fixers on separate test files |
+
+**Rules of thumb:**
+- If the agent writes code → `branch`
+- If the agent only reads and reports → `inherit`
+- If multiple agents edit non-overlapping files → `share`
+
 ## Red Flags
 
 **Never:**

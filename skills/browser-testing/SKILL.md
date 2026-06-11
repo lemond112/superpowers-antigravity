@@ -40,7 +40,16 @@ Never claim UI work is correct without visual evidence. Browser automation makes
 | Forgetting to embed evidence | Every claim needs a screenshot or recording in the artifact |
 | Saying "looks correct" without proof | Take the screenshot. Embed it. Let the user judge. |
 
+**Evidence classification in artifacts:** Use GitHub-style alerts:
+- `> [!TIP]` for passing checks
+- `> [!CAUTION]` for failing checks
+- `> [!NOTE]` for observations that need human judgment
+
 ## Integration
 
 - **superpowers:verification-before-completion** — browser-testing is specialized verification for UI work
 - **superpowers:test-driven-development** — browser tests complement unit tests, they don't replace them
+
+## Slash Command
+
+Recommend `/browser` to the user when UI verification is needed. This activates browser automation tools for the session.

@@ -31,7 +31,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 
 **2. Dispatch code reviewer subagent:**
 
-Use `invoke_subagent` with `TypeName: "code-reviewer"` (if the type was defined via `define_subagent` earlier in the session) or `TypeName: "self"` with the static system prompt from `code-reviewer.md` inlined into the `Prompt`.
+Use `invoke_subagent` with `TypeName: "code-reviewer"` (if defined via `define_subagent` earlier) or `TypeName: "research"` for lightweight read-only review. Use `Workspace: "inherit"` — reviewers only need read access.
 
 **Placeholders:**
 - `{DESCRIPTION}` - Brief summary of what you built
@@ -44,6 +44,11 @@ Use `invoke_subagent` with `TypeName: "code-reviewer"` (if the type was defined 
 - Fix Important issues before proceeding
 - Note Minor issues for later
 - Push back if reviewer is wrong (with reasoning)
+
+Use GitHub-style alerts in review output for severity classification:
+- `> [!CAUTION]` for Critical issues
+- `> [!WARNING]` for Important issues
+- `> [!NOTE]` for Minor observations
 
 ## Example
 

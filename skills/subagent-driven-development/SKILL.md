@@ -86,6 +86,14 @@ At the start of plan execution, **before dispatching any tasks**, define all thr
 
 This pays the prompt cost once. Every subsequent `invoke_subagent` with these types reuses the cached definition.
 
+**Workspace isolation per role:**
+
+| Role | Workspace Mode | Why |
+|------|---------------|-----|
+| Implementer | `Workspace: "branch"` | Needs isolated write access |
+| Spec reviewer | `Workspace: "inherit"` | Read-only — only inspects code |
+| Code reviewer | `Workspace: "inherit"` | Read-only — only inspects code |
+
 ## Model Selection
 
 Use the least powerful model that can handle each role to conserve cost and increase speed.
@@ -183,6 +191,20 @@ digraph timeout {
 - Set a one-shot timer when dispatching implementers for complex tasks (5 minutes for standard tasks, 10 for complex ones)
 - If the timer fires before the implementer responds, check status and intervene if needed
 - The timer cancels automatically if the implementer responds first — no cleanup needed
+
+**For test suites expected to take 5+ minutes**, use a recurring schedule instead of a one-shot timer:
+```
+schedule(CronExpression: "*/2 * * * *", MaxIterations: 5, Prompt: "Check implementer status for Task N")
+```
+
+## Subagent Monitoring
+
+Use `manage_subagents` to track running subagents:
+
+- `Action: "list"` — check which subagents are still running before dispatching the next task
+- `Action: "kill"` — terminate stuck subagents that haven't responded after timeout
+
+Don't poll in a loop — the system notifies you when subagents complete. Use `manage_subagents` only when you need an explicit status check (e.g., before cleanup or when a timer fires).
 
 ## Prompt Templates
 

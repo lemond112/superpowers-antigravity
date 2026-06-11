@@ -90,6 +90,8 @@ skills/
 - Code patterns (< 50 lines)
 - Everything else
 
+**Editing existing skills:** Use `replace_file_content` or `multi_replace_file_content` for targeted edits to existing SKILL.md files. Reserve `write_to_file` for creating new skills — full rewrites waste tokens and risk losing content.
+
 ## SKILL.md Structure
 
 **Frontmatter (YAML):**

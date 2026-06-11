@@ -54,18 +54,6 @@ else
 fi
 echo ""
 
-# Check 4: No executing-plans references
-echo "=== Check 4: Deleted Skill References ==="
-echo ""
-
-if grep -rn "executing-plans" "$SKILLS_DIR"; then
-    echo "  [FAIL] References to deleted skill 'executing-plans' found"
-    FAILED=$((FAILED + 1))
-else
-    echo "  [PASS] No references to deleted skills found"
-fi
-echo ""
-
 # Summary
 echo "========================================"
 echo " Test Summary"

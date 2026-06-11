@@ -24,12 +24,13 @@ If the spec covers multiple independent subsystems, it should have been broken i
 
 ## File Structure
 
-Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
+Before defining tasks, use `list_dir` and `grep_search` to map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
 
 - Design units with clear boundaries and well-defined interfaces. Each file should have one clear responsibility.
 - You reason best about code you can hold in context at once, and your edits are more reliable when files are focused. Prefer smaller, focused files over large ones that do too much.
 - Files that change together should live together. Split by responsibility, not by technical layer.
 - In existing codebases, follow established patterns. If the codebase uses large files, don't unilaterally restructure - but if a file you're modifying has grown unwieldy, including a split in the plan is reasonable.
+- When integrating with external APIs or libraries, use `search_web` and `read_url_content` to fetch current documentation before locking in the file structure
 
 This structure informs the task decomposition. Each task should produce self-contained changes that make sense independently.
 
@@ -161,9 +162,9 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 ## Execution Handoff
 
-After saving the plan, confirm execution:
+After saving the plan (using `write_to_file` with `IsArtifact: true`, `ArtifactType: "implementation_plan"`, `RequestFeedback: true`), confirm execution:
 
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Ready to execute with subagent-driven-development?"**
+**"Plan complete and saved. Ready to execute with subagent-driven-development?"**
 
 Use `ask_question` to present the confirmation.
 
